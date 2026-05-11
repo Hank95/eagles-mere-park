@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "types:gen": "supabase gen types typescript --linked 2>/dev/null | grep -Ev '^(Initialising |Connecting |A new version |We recommend )' > src/lib/database.types.ts"
   },
   "dependencies": {
     "@supabase/ssr": "^0.10.3",
