@@ -28,19 +28,35 @@ type MemberUpdate = {
   role?: string | null;
   email?: string | null;
   phone?: string | null;
+  email_is_public?: boolean;
+  phone_is_public?: boolean;
+  address_is_public?: boolean;
 };
 
 function collectMemberUpdates(formData: FormData): MemberUpdate[] {
   const byId = new Map<string, MemberUpdate>();
-  for (const [key, value] of formData.entries()) {
-    const match = /^member\.([^.]+)\.(.+)$/.exec(key);
-    if (!match) continue;
-    const [, id, field] = match;
-    const update = byId.get(id) ?? { id };
-    if (field === "name") update.name = String(value).trim();
-    else if (field === "role") update.role = asTextOrNull(value);
-    else if (field === "email") update.email = asTextOrNull(value);
-    else if (field === "phone") update.phone = asTextOrNull(value);
+  const ids = new Set<string>();
+  for (const key of formData.keys()) {
+    const match = /^member\.([^.]+)\./.exec(key);
+    if (match) ids.add(match[1]);
+  }
+
+  for (const id of ids) {
+    const get = (field: string) => formData.get(`member.${id}.${field}`);
+    const update: MemberUpdate = { id };
+    const nameVal = get("name");
+    if (nameVal !== null) update.name = String(nameVal).trim();
+    const roleVal = get("role");
+    if (roleVal !== null) update.role = asTextOrNull(roleVal);
+    const emailVal = get("email");
+    if (emailVal !== null) update.email = asTextOrNull(emailVal);
+    const phoneVal = get("phone");
+    if (phoneVal !== null) update.phone = asTextOrNull(phoneVal);
+    // Checkboxes: only present in FormData when checked. Always set the
+    // flag based on presence so unchecking is recorded.
+    update.email_is_public = get("email_is_public") === "on";
+    update.phone_is_public = get("phone_is_public") === "on";
+    update.address_is_public = get("address_is_public") === "on";
     byId.set(id, update);
   }
   return Array.from(byId.values());
