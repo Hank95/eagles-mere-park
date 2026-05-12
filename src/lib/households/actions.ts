@@ -1,10 +1,13 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
+import { isAdmin } from "@/lib/auth/is-admin";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
-export type UpdateHouseholdState = { error?: string } | undefined;
+export type UpdateHouseholdState =
+  | { error?: string; saved?: boolean }
+  | undefined;
 
 function asTextOrNull(value: FormDataEntryValue | null): string | null {
   if (value === null) return null;
@@ -56,6 +59,19 @@ export async function updateHousehold(
   } = await supabase.auth.getUser();
   if (!user) return { error: "Not signed in." };
 
+  // App-layer authorization (RLS is authoritative; this exists for friendlier
+  // errors and to short-circuit before any DB writes).
+  if (!isAdmin(user)) {
+    const { data: own } = await supabase
+      .from("members")
+      .select("household_id")
+      .eq("user_id", user.id)
+      .maybeSingle();
+    if (own?.household_id !== id) {
+      return { error: "Not authorized." };
+    }
+  }
+
   const householdPatch = {
     cottage_name: String(formData.get("cottage_name") ?? "").trim(),
     street_address: asTextOrNull(formData.get("street_address")),
@@ -69,8 +85,16 @@ export async function updateHousehold(
     return { error: "Cottage name is required." };
   }
 
-  // RLS authoritatively blocks an unauthorized write; the app-layer check
-  // exists for friendlier error messages.
+  // Validate all member fields before any writes.
+  const memberUpdates = collectMemberUpdates(formData);
+  for (const m of memberUpdates) {
+    if (m.name !== undefined && m.name === "") {
+      return { error: "Member name cannot be empty." };
+    }
+  }
+
+  // Now write. RLS authoritatively blocks unauthorized writes; the app-layer
+  // check above provides the friendly error.
   const { error: hhError } = await supabase
     .from("households")
     .update(householdPatch)
@@ -79,13 +103,9 @@ export async function updateHousehold(
     return { error: `Could not save household: ${hhError.message}` };
   }
 
-  const memberUpdates = collectMemberUpdates(formData);
   for (const m of memberUpdates) {
     const { id: memberId, ...patch } = m;
     if (Object.keys(patch).length === 0) continue;
-    if (patch.name !== undefined && patch.name === "") {
-      return { error: "Member name cannot be empty." };
-    }
     const { error: mError } = await supabase
       .from("members")
       .update(patch)
