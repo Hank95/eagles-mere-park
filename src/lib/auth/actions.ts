@@ -30,6 +30,11 @@ export async function signIn(
 
 export async function signOut() {
   const supabase = await createClient();
-  await supabase.auth.signOut();
+  const { error } = await supabase.auth.signOut();
+  if (error) {
+    // signOut still clears the local cookie even on a server-side failure,
+    // so we redirect the user to / regardless. Log so an outage is observable.
+    console.error("signOut error:", error.message);
+  }
   redirect("/");
 }
