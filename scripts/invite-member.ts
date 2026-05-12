@@ -49,6 +49,8 @@ if (householdId && newHouseholdName) {
   usage("pass either --household-id or --new-household, not both");
 }
 
+const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+
 const supabase = createClient(url, serviceKey, {
   auth: { autoRefreshToken: false, persistSession: false },
 });
@@ -97,11 +99,19 @@ async function main() {
     .single();
   if (memberError || !memberData) {
     console.error("Failed to insert member row:", memberError?.message);
+    if (newHouseholdName) {
+      console.error(
+        `Household '${newHouseholdName}' (id: ${resolvedHouseholdId}) was created and is now orphaned.\n` +
+          `Delete it before re-running with --new-household, or re-run with --household-id ${resolvedHouseholdId}.`,
+      );
+    }
     process.exit(1);
   }
   console.log(`Inserted member ${name} (id: ${memberData.id})`);
 
-  const { error: inviteError } = await supabase.auth.admin.inviteUserByEmail(email);
+  const { error: inviteError } = await supabase.auth.admin.inviteUserByEmail(email, {
+    redirectTo: `${appUrl}/auth/callback?next=/update-password`,
+  });
   if (inviteError) {
     console.error("Failed to send invite:", inviteError.message);
     console.error(
