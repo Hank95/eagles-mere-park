@@ -62,7 +62,7 @@ async function main() {
 
   if (createdNew) {
     console.log(
-      `Created user ${email} (id: ${user.id}) with a random temp password.\n` +
+      `Created user ${user.email ?? email} (id: ${user.id}) with a random temp password.\n` +
         `Have them visit /reset-password to set their own password.`,
     );
   }
