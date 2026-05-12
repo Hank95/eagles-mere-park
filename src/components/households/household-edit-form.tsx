@@ -1,6 +1,11 @@
 "use client";
 
+import { useActionState } from "react";
 import { MemberEditRow } from "@/components/households/member-edit-row";
+import {
+  updateHousehold,
+  type UpdateHouseholdState,
+} from "@/lib/households/actions";
 import type { Database } from "@/lib/database.types";
 import { Button } from "@/components/ui/button";
 
@@ -12,8 +17,13 @@ export function HouseholdEditForm({
 }: {
   household: HouseholdRow & { members: MemberRow[] };
 }) {
+  const [state, action, pending] = useActionState<
+    UpdateHouseholdState,
+    FormData
+  >(updateHousehold, undefined);
+
   return (
-    <form className="mx-auto max-w-2xl space-y-8 px-6 py-12">
+    <form action={action} className="mx-auto max-w-2xl space-y-8 px-6 py-12">
       <input type="hidden" name="id" value={household.id} />
 
       <header className="flex items-end justify-between">
@@ -118,9 +128,15 @@ export function HouseholdEditForm({
         </ul>
       </section>
 
+      {state?.error ? (
+        <p className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
+          {state.error}
+        </p>
+      ) : null}
+
       <div className="flex justify-end">
-        <Button type="submit" disabled>
-          Save (wiring in next task)
+        <Button type="submit" disabled={pending}>
+          {pending ? "Saving…" : "Save"}
         </Button>
       </div>
     </form>
