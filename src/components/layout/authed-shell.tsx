@@ -11,12 +11,19 @@ export function AuthedShell({
     <div className="flex min-h-full flex-1 flex-col">
       <header className="border-b">
         <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
-          <a
-            href="/dashboard"
-            className="text-sm font-semibold tracking-tight"
-          >
-            Eagles Mere Park
-          </a>
+          <div className="flex items-center gap-6">
+            <a
+              href="/dashboard"
+              className="text-sm font-semibold tracking-tight"
+            >
+              Eagles Mere Park
+            </a>
+            <nav className="flex items-center gap-4 text-sm text-muted-foreground">
+              <a href="/directory" className="hover:text-foreground">
+                Directory
+              </a>
+            </nav>
+          </div>
           <div className="flex items-center gap-3 text-sm text-muted-foreground">
             <span className="hidden sm:inline">{email}</span>
             <SignOutButton />
