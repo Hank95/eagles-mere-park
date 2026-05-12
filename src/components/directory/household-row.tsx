@@ -3,7 +3,7 @@ import type { Database } from "@/lib/database.types";
 
 type HouseholdSummary = Pick<
   Database["public"]["Tables"]["households"]["Row"],
-  "id" | "cottage_name" | "arrival_year" | "is_year_round" | "is_unlisted"
+  "id" | "cottage_name" | "street_address" | "arrival_year" | "is_year_round" | "is_unlisted"
 > & {
   members: Pick<
     Database["public"]["Tables"]["members"]["Row"],

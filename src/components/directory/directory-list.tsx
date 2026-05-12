@@ -39,6 +39,7 @@ function searchMatches(h: HouseholdSummary, query: string): boolean {
   if (!query) return true;
   const q = query.toLowerCase();
   if (h.cottage_name.toLowerCase().includes(q)) return true;
+  if (h.street_address?.toLowerCase().includes(q)) return true;
   for (const m of h.members) {
     if (m.name.toLowerCase().includes(q)) return true;
   }
@@ -91,8 +92,8 @@ export function DirectoryList({
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <input
           type="search"
-          defaultValue={query}
-          placeholder="Search by name or cottage"
+          value={query}
+          placeholder="Search by name, cottage, or street"
           onChange={(e) => updateParam("q", e.target.value)}
           className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm sm:max-w-xs"
         />

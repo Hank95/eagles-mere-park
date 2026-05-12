@@ -26,7 +26,7 @@ export default async function DirectoryPage() {
   const { data: households, error } = await supabase
     .from("households")
     .select(
-      "id, cottage_name, arrival_year, is_year_round, is_unlisted, members(name, role)",
+      "id, cottage_name, street_address, arrival_year, is_year_round, is_unlisted, members(name, role)",
     )
     .order("cottage_name", { ascending: true });
 
