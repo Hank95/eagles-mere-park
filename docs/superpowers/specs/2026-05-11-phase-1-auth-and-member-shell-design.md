@@ -161,7 +161,7 @@ Sequence:
 - [ ] Hit `/login` while signed in → redirects to `/dashboard`
 - [ ] Request password reset for an existing email → email arrives, link works, `/update-password` form lets you set a new password, you're signed in afterward
 - [ ] Request password reset for a nonexistent email → still shows "check your email" (no enumeration)
-- [ ] Click an expired reset link → bounces to `/reset-password?error=invalid_link`
+- [ ] Click an expired reset link → bounces to `/reset-password?error=invalid_link` (the bounce happens at `/auth/callback`, the Route Handler that exchanges the recovery code for a session; see PLANNING.md §9). `/update-password` itself only checks for an active session — a signed-in user visiting it directly will see the password-change form, which is intentional and behaves correctly.
 - [ ] `promote-admin.ts` on a new email → creates user + sets admin
 - [ ] `promote-admin.ts` on an existing user → updates `is_admin`, leaves other `app_metadata` intact
 - [ ] `promote-admin.ts` on an already-admin → no-op, prints confirmation
