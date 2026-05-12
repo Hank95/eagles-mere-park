@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
+import { AuthedShell } from "@/components/layout/authed-shell";
 
 export default async function AuthedLayout({
   children,
@@ -15,5 +16,5 @@ export default async function AuthedLayout({
     redirect("/login");
   }
 
-  return <>{children}</>;
+  return <AuthedShell email={user.email ?? ""}>{children}</AuthedShell>;
 }

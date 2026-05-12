@@ -27,3 +27,9 @@ export async function signIn(
 
   redirect(safeNext(next));
 }
+
+export async function signOut() {
+  const supabase = await createClient();
+  await supabase.auth.signOut();
+  redirect("/");
+}
