@@ -7,6 +7,8 @@ export async function updateSession(request: NextRequest) {
   // Mutating request.headers directly does NOT propagate — we must pass a new
   // Headers object through NextResponse.next({ request: { headers } }).
   const requestHeaders = new Headers(request.headers);
+  // Only the pathname is forwarded — query string and hash are dropped.
+  // Post-login bounce preserves the path but not search params.
   requestHeaders.set("x-pathname", request.nextUrl.pathname);
 
   let response = NextResponse.next({
