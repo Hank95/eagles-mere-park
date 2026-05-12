@@ -109,6 +109,13 @@ export async function updateHousehold(
     }
   }
 
+  const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  for (const m of memberUpdates) {
+    if (m.email !== undefined && m.email !== null && !EMAIL_RE.test(m.email)) {
+      return { error: `'${m.email}' is not a valid email address.` };
+    }
+  }
+
   // Now write. RLS authoritatively blocks unauthorized writes; the app-layer
   // check above provides the friendly error.
   const { error: hhError } = await supabase

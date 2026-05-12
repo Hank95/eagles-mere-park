@@ -9,7 +9,8 @@ export default function DashboardPage() {
           Welcome
         </h1>
         <p className="text-balance text-base leading-relaxed text-muted-foreground sm:text-lg">
-          Directory, events, map, photos, and documents are on the way.
+          Browse the <a href="/directory" className="underline underline-offset-2">directory</a>.
+          Events, map, photos, and documents are on the way.
         </p>
       </div>
     </main>
