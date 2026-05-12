@@ -2,20 +2,13 @@ import { UpdatePasswordForm } from "@/components/auth/update-password-form";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 
-export default async function UpdatePasswordPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ code?: string }>;
-}) {
-  const { code } = await searchParams;
-
-  if (!code) {
-    redirect("/reset-password?error=invalid_link");
-  }
-
+export default async function UpdatePasswordPage() {
   const supabase = await createClient();
-  const { error } = await supabase.auth.exchangeCodeForSession(code);
-  if (error) {
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
     redirect("/reset-password?error=invalid_link");
   }
 

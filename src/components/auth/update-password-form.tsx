@@ -38,7 +38,7 @@ export function UpdatePasswordForm() {
           id="confirm"
           name="confirm"
           type="password"
-          autoComplete="new-password"
+          autoComplete="off"
           required
           minLength={8}
           className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"

@@ -49,7 +49,7 @@ export async function requestPasswordReset(
   // We intentionally do not check for errors here: revealing whether an email
   // exists would let attackers enumerate accounts. Always show "check your email".
   await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: `${origin}/update-password`,
+    redirectTo: `${origin}/auth/callback?next=/update-password`,
   });
 
   return { sent: true };
