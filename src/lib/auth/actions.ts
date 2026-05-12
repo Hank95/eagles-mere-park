@@ -41,8 +41,8 @@ export async function requestPasswordReset(
   }
 
   const h = await headers();
-  const host = h.get("host");
-  const proto = host?.startsWith("localhost") ? "http" : "https";
+  const host = h.get("x-forwarded-host") ?? h.get("host") ?? "localhost";
+  const proto = h.get("x-forwarded-proto") ?? (host.startsWith("localhost") ? "http" : "https");
   const origin = `${proto}://${host}`;
 
   const supabase = await createClient();
