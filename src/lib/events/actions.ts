@@ -138,3 +138,23 @@ export async function updateEvent(
   revalidatePath("/calendar");
   redirect(`/events/${id}`);
 }
+
+export async function deleteEvent(formData: FormData): Promise<void> {
+  const id = String(formData.get("id") ?? "");
+  if (!id) return;
+
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return;
+
+  // RLS will authoritatively block unauthorized deletes; this is the
+  // app-layer fast-path. We don't return errors from delete because the
+  // client form uses confirm() pre-submit and then redirects unconditionally.
+  await supabase.from("events").delete().eq("id", id);
+
+  revalidatePath("/events");
+  revalidatePath("/calendar");
+  redirect("/events");
+}

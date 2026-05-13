@@ -1,4 +1,5 @@
 import { AnnouncementChip } from "@/components/events/announcement-chip";
+import { EventDeleteButton } from "@/components/events/event-delete-button";
 import { RsvpControls } from "@/components/events/rsvp-controls";
 import { formatEventDateTime, formatEventTime } from "@/lib/events/format";
 import { rsvpSummary } from "@/lib/rsvps/aggregate";
@@ -109,13 +110,14 @@ export function EventDetailRead({
       ) : null}
 
       {canManage ? (
-        <div className="flex gap-2">
+        <div className="flex items-center gap-2">
           <a
             href={`/events/${event.id}?edit=1`}
             className="rounded-md border border-input px-3 py-1.5 text-sm hover:bg-muted"
           >
             Edit
           </a>
+          <EventDeleteButton eventId={event.id} eventTitle={event.title} />
         </div>
       ) : null}
     </article>
