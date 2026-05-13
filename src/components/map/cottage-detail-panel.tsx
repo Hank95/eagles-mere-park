@@ -2,6 +2,7 @@
 
 import { useMediaQuery } from "@/lib/use-media-query";
 import { CottagePopover } from "@/components/map/cottage-popover";
+import { CottageSheet } from "@/components/map/cottage-sheet";
 import type { Database } from "@/lib/database.types";
 
 type CottageRow = Database["public"]["Tables"]["cottages"]["Row"];
@@ -16,7 +17,7 @@ export type CottageDetailData = CottageRow & {
 
 export type HouseholdOption = {
   id: string;
-  label: string; // "The Pines (Pendleton)"
+  label: string;
 };
 
 export function CottageDetailPanel({
@@ -43,9 +44,8 @@ export function CottageDetailPanel({
     );
   }
 
-  // Mobile sheet lands in Task 5; until then, render the popover everywhere.
   return (
-    <CottagePopover
+    <CottageSheet
       cottage={cottage}
       householdOptions={householdOptions}
       isAdminViewer={isAdminViewer}
