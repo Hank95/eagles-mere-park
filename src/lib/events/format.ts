@@ -68,6 +68,15 @@ export function easternDateInputValue(date: string | Date): string {
 }
 
 /**
+ * True iff the input is a string in the YYYY-MM-DDTHH:MM shape accepted by
+ * <input type="datetime-local">. Useful for validating Server Action input
+ * before passing it to easternDateFromInput (which would throw on garbage).
+ */
+export function isDatetimeLocalString(value: string): boolean {
+  return /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(value);
+}
+
+/**
  * Convert a `<input type="datetime-local">` value (a string like
  * "2026-07-04T16:00", which has no inherent timezone) into a UTC ISO string,
  * interpreting the input as Eastern time. Handles DST by round-trip checking

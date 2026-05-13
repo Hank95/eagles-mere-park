@@ -2,7 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { isAdmin } from "@/lib/auth/is-admin";
-import { easternDateFromInput } from "@/lib/events/format";
+import { easternDateFromInput, isDatetimeLocalString } from "@/lib/events/format";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
@@ -34,6 +34,12 @@ export async function createEvent(
 
   if (!title) return { error: "Title is required." };
   if (!startsAtInput) return { error: "Start date/time is required." };
+  if (!isDatetimeLocalString(startsAtInput)) {
+    return { error: "Invalid start date format." };
+  }
+  if (endsAtInput && !isDatetimeLocalString(endsAtInput)) {
+    return { error: "Invalid end date format." };
+  }
   if (isAnnouncement && !isAdmin(user)) {
     return { error: "Only admins can post announcements." };
   }
