@@ -1,15 +1,16 @@
 "use client";
 
 import { useEffect } from "react";
-import type {
-  CottageDetailData,
-  HouseholdOption,
+import {
+  type CottageDetailData,
+  type HouseholdOption,
 } from "@/components/map/cottage-detail-panel";
+import { CottageEditFields } from "@/components/map/cottage-edit-fields";
 
 export function CottageSheet({
   cottage,
-  householdOptions: _householdOptions,
-  isAdminViewer: _isAdminViewer,
+  householdOptions,
+  isAdminViewer,
   onClose,
 }: {
   cottage: CottageDetailData;
@@ -27,15 +28,12 @@ export function CottageSheet({
 
   return (
     <div className="fixed inset-0 z-20 flex flex-col justify-end">
-      {/* Backdrop */}
       <button
         type="button"
         aria-label="Close cottage details"
         onClick={onClose}
         className="absolute inset-0 bg-foreground/40"
       />
-
-      {/* Sheet */}
       <div
         role="dialog"
         aria-label={`${cottage.name} details`}
@@ -83,6 +81,10 @@ export function CottageSheet({
             </p>
           ) : null}
         </div>
+
+        {isAdminViewer ? (
+          <CottageEditFields cottage={cottage} householdOptions={householdOptions} />
+        ) : null}
       </div>
     </div>
   );

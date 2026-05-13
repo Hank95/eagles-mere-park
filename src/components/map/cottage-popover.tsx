@@ -1,15 +1,16 @@
 "use client";
 
 import { useEffect } from "react";
-import type {
-  CottageDetailData,
-  HouseholdOption,
+import {
+  type CottageDetailData,
+  type HouseholdOption,
 } from "@/components/map/cottage-detail-panel";
+import { CottageEditFields } from "@/components/map/cottage-edit-fields";
 
 export function CottagePopover({
   cottage,
-  householdOptions: _householdOptions, // used in Task 7 by edit fields
-  isAdminViewer: _isAdminViewer,
+  householdOptions,
+  isAdminViewer,
   onClose,
 }: {
   cottage: CottageDetailData;
@@ -71,6 +72,10 @@ export function CottagePopover({
           </p>
         ) : null}
       </div>
+
+      {isAdminViewer ? (
+        <CottageEditFields cottage={cottage} householdOptions={householdOptions} />
+      ) : null}
     </div>
   );
 }
