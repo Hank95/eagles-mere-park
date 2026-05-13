@@ -47,6 +47,10 @@ export async function createEvent(
   const starts_at = easternDateFromInput(startsAtInput);
   const ends_at = endsAtInput ? easternDateFromInput(endsAtInput) : null;
 
+  if (ends_at && new Date(ends_at) < new Date(starts_at)) {
+    return { error: "End time must be after start time." };
+  }
+
   const { data, error } = await supabase
     .from("events")
     .insert({
@@ -118,6 +122,10 @@ export async function updateEvent(
 
   const starts_at = easternDateFromInput(startsAtInput);
   const ends_at = endsAtInput ? easternDateFromInput(endsAtInput) : null;
+
+  if (ends_at && new Date(ends_at) < new Date(starts_at)) {
+    return { error: "End time must be after start time." };
+  }
 
   const { error } = await supabase
     .from("events")
