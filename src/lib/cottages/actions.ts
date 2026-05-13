@@ -39,11 +39,15 @@ export async function updateCottage(
   const year_built = asIntOrNull(formData.get("year_built"));
   const history_text = asTextOrNull(formData.get("history_text"));
 
-  const { error } = await supabase
+  const { error, count } = await supabase
     .from("cottages")
-    .update({ household_id, year_built, history_text })
+    .update(
+      { household_id, year_built, history_text },
+      { count: "exact" },
+    )
     .eq("id", id);
   if (error) return { error: `Could not save cottage: ${error.message}` };
+  if (count === 0) return { error: "Cottage not found." };
 
   revalidatePath("/map");
   return { saved: true };
