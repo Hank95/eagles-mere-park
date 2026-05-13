@@ -27,8 +27,12 @@ function monthRangeUtc(
   const startUtcIso = new Date(
     Date.UTC(year, month - 2, 1),
   ).toISOString();
+  // Include the entire next month so trailing overflow cells (up to 6 days
+  // into month+1, in Eastern) aren't cut off. An Eastern event on the 1st
+  // of month+1 has a UTC starts_at after midnight UTC on the 1st; only by
+  // extending to month+2 do we cover those cells reliably.
   const endUtcIso = new Date(
-    Date.UTC(year, month + 1, 1),
+    Date.UTC(year, month + 2, 1),
   ).toISOString();
   return { startUtcIso, endUtcIso };
 }

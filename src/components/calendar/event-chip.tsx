@@ -1,3 +1,5 @@
+"use client";
+
 import { formatEventTime } from "@/lib/events/format";
 
 export function CalendarEventChip({

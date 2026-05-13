@@ -56,10 +56,13 @@ function buildCells(
 ): Cell[] {
   // First-of-month at noon UTC to avoid TZ edge cases.
   const firstUtc = new Date(Date.UTC(year, month - 1, 1, 12));
-  // Eastern weekday for the 1st (0 = Sunday)
+  // Eastern weekday for the 1st (0 = Sunday). easternIso gives the local
+  // YYYY-MM-DD; appending T12:00:00Z makes the parse unambiguous regardless
+  // of the server's local TZ, and the calendar weekday of a date string is
+  // invariant under TZ (it depends only on the calendar date).
   const firstWeekday = new Date(
-    firstUtc.toLocaleString("en-US", { timeZone: TIMEZONE }),
-  ).getDay();
+    easternIso(firstUtc) + "T12:00:00Z",
+  ).getUTCDay();
 
   const cells: Cell[] = [];
   // 42 cells = 6 weeks
