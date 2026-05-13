@@ -5,22 +5,35 @@ import type { EventCardData } from "@/components/events/event-card";
 export default async function EventsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ past?: string }>;
+  searchParams: Promise<{ past?: string; day?: string }>;
 }) {
-  const { past } = await searchParams;
+  const { past, day } = await searchParams;
   const showPast = past === "1";
 
   const supabase = await createClient();
   const nowIso = new Date().toISOString();
 
-  const query = supabase
+  // When ?day=YYYY-MM-DD is set, ignore past/upcoming and filter to that
+  // single Eastern day. Bracket: midnight Eastern → midnight Eastern next day.
+  // We bracket the UTC window generously (calendar-date 00:00 UTC → calendar-date+2 00:00 UTC)
+  // to be safe across DST edges; the chip click target is calendar-only.
+  let query = supabase
     .from("events")
     .select("*")
     .order("starts_at", { ascending: !showPast });
 
-  const { data: events, error } = showPast
-    ? await query.lt("starts_at", nowIso)
-    : await query.gte("starts_at", nowIso);
+  if (day && /^\d{4}-\d{2}-\d{2}$/.test(day)) {
+    const [y, mo, d] = day.split("-").map(Number);
+    const start = new Date(Date.UTC(y, mo - 1, d, 0)).toISOString();
+    const end = new Date(Date.UTC(y, mo - 1, d + 2, 0)).toISOString();
+    query = query.gte("starts_at", start).lt("starts_at", end);
+  } else if (showPast) {
+    query = query.lt("starts_at", nowIso);
+  } else {
+    query = query.gte("starts_at", nowIso);
+  }
+
+  const { data: events, error } = await query;
 
   if (error) {
     return (

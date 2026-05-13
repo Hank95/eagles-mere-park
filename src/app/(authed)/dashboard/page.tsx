@@ -9,8 +9,19 @@ export default function DashboardPage() {
           Welcome
         </h1>
         <p className="text-balance text-base leading-relaxed text-muted-foreground sm:text-lg">
-          Browse the <a href="/directory" className="underline underline-offset-2">directory</a>.
-          Events, map, photos, and documents are on the way.
+          Browse the{" "}
+          <a href="/directory" className="underline underline-offset-2">
+            directory
+          </a>
+          , check{" "}
+          <a href="/events" className="underline underline-offset-2">
+            upcoming events
+          </a>
+          , or open the{" "}
+          <a href="/calendar" className="underline underline-offset-2">
+            calendar
+          </a>
+          . Map, photos, and documents are on the way.
         </p>
       </div>
     </main>
