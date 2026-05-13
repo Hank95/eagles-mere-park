@@ -22,6 +22,12 @@ export function AuthedShell({
               <a href="/directory" className="hover:text-foreground">
                 Directory
               </a>
+              <a href="/events" className="hover:text-foreground">
+                Events
+              </a>
+              <a href="/calendar" className="hover:text-foreground">
+                Calendar
+              </a>
             </nav>
           </div>
           <div className="flex items-center gap-3 text-sm text-muted-foreground">
