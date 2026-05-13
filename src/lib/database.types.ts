@@ -39,6 +39,51 @@ export type Database = {
   }
   public: {
     Tables: {
+      events: {
+        Row: {
+          created_at: string
+          created_by: string
+          description: string | null
+          ends_at: string | null
+          id: string
+          is_announcement: boolean
+          location: string | null
+          photo_url: string | null
+          rsvp_enabled: boolean
+          starts_at: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          description?: string | null
+          ends_at?: string | null
+          id?: string
+          is_announcement?: boolean
+          location?: string | null
+          photo_url?: string | null
+          rsvp_enabled?: boolean
+          starts_at: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          ends_at?: string | null
+          id?: string
+          is_announcement?: boolean
+          location?: string | null
+          photo_url?: string | null
+          rsvp_enabled?: boolean
+          starts_at?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       households: {
         Row: {
           arrival_year: number | null
@@ -127,6 +172,51 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "members_household_id_fkey"
+            columns: ["household_id"]
+            isOneToOne: false
+            referencedRelation: "households"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rsvps: {
+        Row: {
+          created_at: string
+          event_id: string
+          headcount: number | null
+          household_id: string
+          id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          event_id: string
+          headcount?: number | null
+          household_id: string
+          id?: string
+          status: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          event_id?: string
+          headcount?: number | null
+          household_id?: string
+          id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rsvps_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rsvps_household_id_fkey"
             columns: ["household_id"]
             isOneToOne: false
             referencedRelation: "households"
