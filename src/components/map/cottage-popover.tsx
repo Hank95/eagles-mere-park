@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import {
   type CottageDetailData,
   type HouseholdOption,
@@ -18,23 +18,34 @@ export function CottagePopover({
   isAdminViewer: boolean;
   onClose: () => void;
 }) {
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+
   useEffect(() => {
+    const previouslyFocused = document.activeElement as HTMLElement | null;
+    closeButtonRef.current?.focus();
+
     function handleKey(e: KeyboardEvent) {
       if (e.key === "Escape") onClose();
     }
     window.addEventListener("keydown", handleKey);
-    return () => window.removeEventListener("keydown", handleKey);
+
+    return () => {
+      window.removeEventListener("keydown", handleKey);
+      previouslyFocused?.focus?.();
+    };
   }, [onClose]);
 
   return (
     <div
       role="dialog"
+      aria-modal="false"
       aria-label={`${cottage.name} details`}
       className="absolute right-4 top-4 z-10 w-80 max-w-[90vw] space-y-3 rounded-md border border-border bg-background p-4 shadow-lg"
     >
       <div className="flex items-start justify-between gap-2">
         <h2 className="text-base font-semibold">{cottage.name}</h2>
         <button
+          ref={closeButtonRef}
           type="button"
           onClick={onClose}
           aria-label="Close"

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import {
   type CottageDetailData,
   type HouseholdOption,
@@ -18,12 +18,26 @@ export function CottageSheet({
   isAdminViewer: boolean;
   onClose: () => void;
 }) {
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+
   useEffect(() => {
+    const previouslyFocused = document.activeElement as HTMLElement | null;
+    closeButtonRef.current?.focus();
+
     function handleKey(e: KeyboardEvent) {
       if (e.key === "Escape") onClose();
     }
     window.addEventListener("keydown", handleKey);
-    return () => window.removeEventListener("keydown", handleKey);
+
+    // Lock body scroll while the sheet is open
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      window.removeEventListener("keydown", handleKey);
+      document.body.style.overflow = previousOverflow;
+      previouslyFocused?.focus?.();
+    };
   }, [onClose]);
 
   return (
@@ -36,6 +50,7 @@ export function CottageSheet({
       />
       <div
         role="dialog"
+        aria-modal="true"
         aria-label={`${cottage.name} details`}
         className="relative max-h-[60vh] space-y-3 overflow-y-auto rounded-t-xl border-t border-border bg-background p-5 shadow-lg"
       >
@@ -44,6 +59,7 @@ export function CottageSheet({
         <div className="flex items-start justify-between gap-2">
           <h2 className="text-base font-semibold">{cottage.name}</h2>
           <button
+            ref={closeButtonRef}
             type="button"
             onClick={onClose}
             aria-label="Close"
