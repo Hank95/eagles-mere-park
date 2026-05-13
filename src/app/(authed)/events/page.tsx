@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { EventFeed } from "@/components/events/event-feed";
 import type { EventCardData } from "@/components/events/event-card";
+import { easternIso } from "@/lib/events/format";
 
 export default async function EventsPage({
   searchParams,
@@ -33,7 +34,7 @@ export default async function EventsPage({
     query = query.gte("starts_at", nowIso);
   }
 
-  const { data: events, error } = await query;
+  const { data: rawEvents, error } = await query;
 
   if (error) {
     return (
@@ -44,6 +45,13 @@ export default async function EventsPage({
       </main>
     );
   }
+
+  // When ?day= is set, the UTC window over-fetches by up to a day on each
+  // side (DST safety); narrow to events whose Eastern calendar date matches.
+  const events =
+    day && /^\d{4}-\d{2}-\d{2}$/.test(day)
+      ? rawEvents.filter((e) => easternIso(new Date(e.starts_at)) === day)
+      : rawEvents;
 
   // Build creator-name map: events.created_by → auth.users.id → members.name
   const creatorIds = Array.from(new Set(events.map((e) => e.created_by)));

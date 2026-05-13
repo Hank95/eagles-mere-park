@@ -96,3 +96,19 @@ export function easternDateFromInput(inputString: string): string {
   const guessEst = new Date(Date.UTC(y, mo - 1, d, h + 5, mi));
   return guessEst.toISOString();
 }
+
+/**
+ * Format a UTC instant as a YYYY-MM-DD string in Eastern time.
+ * The calendar date of an instant depends on the viewer's timezone; we
+ * always project to America/New_York for Eastern Mere Park.
+ */
+export function easternIso(date: Date): string {
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: TIMEZONE,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).formatToParts(date);
+  const get = (t: string) => parts.find((p) => p.type === t)?.value ?? "";
+  return `${get("year")}-${get("month")}-${get("day")}`;
+}

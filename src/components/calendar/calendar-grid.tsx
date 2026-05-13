@@ -3,6 +3,7 @@
 import { useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { CalendarEventChip } from "@/components/calendar/event-chip";
+import { easternIso } from "@/lib/events/format";
 
 type CalendarEvent = {
   id: string;
@@ -17,19 +18,6 @@ type Cell = {
   events: CalendarEvent[];
 };
 
-const TIMEZONE = "America/New_York";
-
-function easternIso(date: Date): string {
-  const parts = new Intl.DateTimeFormat("en-CA", {
-    timeZone: TIMEZONE,
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  }).formatToParts(date);
-  const get = (t: string) => parts.find((p) => p.type === t)?.value ?? "";
-  return `${get("year")}-${get("month")}-${get("day")}`;
-}
-
 function parseMonthParam(raw: string | null): { year: number; month: number } {
   if (raw && /^\d{4}-\d{2}$/.test(raw)) {
     const [y, m] = raw.split("-").map(Number);
@@ -43,7 +31,7 @@ function parseMonthParam(raw: string | null): { year: number; month: number } {
 
 function monthLabel(year: number, month: number): string {
   return new Intl.DateTimeFormat("en-US", {
-    timeZone: TIMEZONE,
+    timeZone: "America/New_York",
     month: "long",
     year: "numeric",
   }).format(new Date(Date.UTC(year, month - 1, 15)));
