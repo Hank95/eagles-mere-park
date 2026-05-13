@@ -39,6 +39,47 @@ export type Database = {
   }
   public: {
     Tables: {
+      cottages: {
+        Row: {
+          created_at: string
+          history_text: string | null
+          household_id: string | null
+          id: string
+          map_element_id: string
+          name: string
+          updated_at: string
+          year_built: number | null
+        }
+        Insert: {
+          created_at?: string
+          history_text?: string | null
+          household_id?: string | null
+          id?: string
+          map_element_id: string
+          name: string
+          updated_at?: string
+          year_built?: number | null
+        }
+        Update: {
+          created_at?: string
+          history_text?: string | null
+          household_id?: string | null
+          id?: string
+          map_element_id?: string
+          name?: string
+          updated_at?: string
+          year_built?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cottages_household_id_fkey"
+            columns: ["household_id"]
+            isOneToOne: false
+            referencedRelation: "households"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       events: {
         Row: {
           created_at: string
