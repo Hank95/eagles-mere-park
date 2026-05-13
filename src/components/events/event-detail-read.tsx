@@ -1,4 +1,5 @@
 import { AnnouncementChip } from "@/components/events/announcement-chip";
+import { RsvpControls } from "@/components/events/rsvp-controls";
 import { formatEventDateTime, formatEventTime } from "@/lib/events/format";
 import { rsvpSummary } from "@/lib/rsvps/aggregate";
 import type { Database } from "@/lib/database.types";
@@ -20,12 +21,16 @@ export function EventDetailRead({
   creatorName,
   rsvps,
   attendingHouseholds,
+  viewerHouseholdId,
+  viewerRsvp,
   canManage,
 }: {
   event: EventRow;
   creatorName: string | null;
   rsvps: Pick<RsvpRow, "status" | "headcount">[];
   attendingHouseholds: AttendingHousehold[];
+  viewerHouseholdId: string | null;
+  viewerRsvp: { status: "yes" | "no" | "maybe"; headcount: number | null } | null;
   canManage: boolean;
 }) {
   const summary = rsvpSummary(rsvps);
@@ -75,12 +80,8 @@ export function EventDetailRead({
             {summary.headcount > 0
               ? ` (${summary.headcount} ${summary.headcount === 1 ? "person" : "people"})`
               : ""}
-            {summary.maybe > 0
-              ? ` · ${summary.maybe} maybe`
-              : ""}
-            {summary.no > 0
-              ? ` · ${summary.no} declined`
-              : ""}
+            {summary.maybe > 0 ? ` · ${summary.maybe} maybe` : ""}
+            {summary.no > 0 ? ` · ${summary.no} declined` : ""}
           </p>
           {attendingHouseholds.length > 0 ? (
             <ul className="mt-3 space-y-1 text-sm text-muted-foreground">
@@ -92,6 +93,18 @@ export function EventDetailRead({
               ))}
             </ul>
           ) : null}
+
+          {viewerHouseholdId ? (
+            <RsvpControls
+              eventId={event.id}
+              currentStatus={viewerRsvp?.status ?? null}
+              currentHeadcount={viewerRsvp?.headcount ?? null}
+            />
+          ) : (
+            <p className="mt-3 text-xs text-muted-foreground">
+              You&apos;re not in a household — RSVPs are per household.
+            </p>
+          )}
         </section>
       ) : null}
 

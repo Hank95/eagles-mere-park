@@ -26,14 +26,12 @@ export default async function EventDetailPage({
     .maybeSingle();
   if (!event) notFound();
 
-  // Creator name lookup (no direct FK from events to members)
   const { data: creator } = await supabase
     .from("members")
     .select("name")
     .eq("user_id", event.created_by)
     .maybeSingle();
 
-  // All RSVPs for this event, plus household names for the attending list
   const { data: rsvpsData } = await supabase
     .from("rsvps")
     .select("status, headcount, household_id, households(id, cottage_name)")
@@ -54,6 +52,29 @@ export default async function EventDetailPage({
       status: "yes" as const,
     }));
 
+  // Viewer's household + their RSVP for this event
+  const { data: own } = await supabase
+    .from("members")
+    .select("household_id")
+    .eq("user_id", user.id)
+    .maybeSingle();
+  const viewerHouseholdId = own?.household_id ?? null;
+
+  let viewerRsvp:
+    | { status: "yes" | "no" | "maybe"; headcount: number | null }
+    | null = null;
+  if (viewerHouseholdId) {
+    const ownRsvp = (rsvpsData ?? []).find(
+      (r) => r.household_id === viewerHouseholdId,
+    );
+    if (ownRsvp) {
+      viewerRsvp = {
+        status: ownRsvp.status as "yes" | "no" | "maybe",
+        headcount: ownRsvp.headcount,
+      };
+    }
+  }
+
   const canManage = isAdmin(user) || event.created_by === user.id;
 
   return (
@@ -62,6 +83,8 @@ export default async function EventDetailPage({
       creatorName={creator?.name ?? null}
       rsvps={rsvps}
       attendingHouseholds={attendingHouseholds}
+      viewerHouseholdId={viewerHouseholdId}
+      viewerRsvp={viewerRsvp}
       canManage={canManage}
     />
   );
