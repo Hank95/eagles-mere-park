@@ -1,10 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
-import {
-  createEvent,
-  type EventActionState,
-} from "@/lib/events/actions";
+import { type EventActionState } from "@/lib/events/actions";
 import { easternDateInputValue } from "@/lib/events/format";
 import { Button } from "@/components/ui/button";
 import type { Database } from "@/lib/database.types";
