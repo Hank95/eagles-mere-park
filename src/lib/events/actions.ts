@@ -69,3 +69,72 @@ export async function createEvent(
   revalidatePath("/calendar");
   redirect(`/events/${data.id}`);
 }
+
+export async function updateEvent(
+  _prev: EventActionState,
+  formData: FormData,
+): Promise<EventActionState> {
+  const id = String(formData.get("id") ?? "");
+  if (!id) return { error: "Missing event id." };
+
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { error: "Not signed in." };
+
+  // Fetch the existing event to enforce ownership at the app layer.
+  const { data: existing } = await supabase
+    .from("events")
+    .select("created_by")
+    .eq("id", id)
+    .maybeSingle();
+  if (!existing) return { error: "Event not found." };
+
+  const adminViewer = isAdmin(user);
+  if (!adminViewer && existing.created_by !== user.id) {
+    return { error: "Not authorized." };
+  }
+
+  const title = String(formData.get("title") ?? "").trim();
+  const description = asTextOrNull(formData.get("description"));
+  const startsAtInput = String(formData.get("starts_at") ?? "");
+  const endsAtInput = asTextOrNull(formData.get("ends_at"));
+  const location = asTextOrNull(formData.get("location"));
+  const rsvpEnabled = formData.get("rsvp_enabled") === "on";
+  const isAnnouncement = formData.get("is_announcement") === "on";
+
+  if (!title) return { error: "Title is required." };
+  if (!startsAtInput) return { error: "Start date/time is required." };
+  if (!isDatetimeLocalString(startsAtInput)) {
+    return { error: "Invalid start date format." };
+  }
+  if (endsAtInput && !isDatetimeLocalString(endsAtInput)) {
+    return { error: "Invalid end date format." };
+  }
+  if (isAnnouncement && !adminViewer) {
+    return { error: "Only admins can mark events as announcements." };
+  }
+
+  const starts_at = easternDateFromInput(startsAtInput);
+  const ends_at = endsAtInput ? easternDateFromInput(endsAtInput) : null;
+
+  const { error } = await supabase
+    .from("events")
+    .update({
+      title,
+      description,
+      starts_at,
+      ends_at,
+      location,
+      is_announcement: isAnnouncement,
+      rsvp_enabled: rsvpEnabled,
+    })
+    .eq("id", id);
+  if (error) return { error: `Could not save event: ${error.message}` };
+
+  revalidatePath(`/events/${id}`);
+  revalidatePath("/events");
+  revalidatePath("/calendar");
+  redirect(`/events/${id}`);
+}

@@ -1,17 +1,22 @@
 import { createClient } from "@/lib/supabase/server";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { isAdmin } from "@/lib/auth/is-admin";
 import {
   EventDetailRead,
   type AttendingHousehold,
 } from "@/components/events/event-detail-read";
+import { EventEditForm } from "@/components/events/event-edit-form";
+import { updateEvent } from "@/lib/events/actions";
 
 export default async function EventDetailPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ edit?: string }>;
 }) {
   const { id } = await params;
+  const { edit } = await searchParams;
   const supabase = await createClient();
 
   const {
@@ -26,6 +31,22 @@ export default async function EventDetailPage({
     .maybeSingle();
   if (!event) notFound();
 
+  const adminViewer = isAdmin(user);
+  const canManage = adminViewer || event.created_by === user.id;
+
+  if (edit === "1") {
+    if (!canManage) redirect(`/events/${id}`);
+    return (
+      <EventEditForm
+        initial={event}
+        action={updateEvent}
+        isAdminViewer={adminViewer}
+        submitLabel="Save changes"
+      />
+    );
+  }
+
+  // Read view
   const { data: creator } = await supabase
     .from("members")
     .select("name")
@@ -52,7 +73,6 @@ export default async function EventDetailPage({
       status: "yes" as const,
     }));
 
-  // Viewer's household + their RSVP for this event
   const { data: own } = await supabase
     .from("members")
     .select("household_id")
@@ -74,8 +94,6 @@ export default async function EventDetailPage({
       };
     }
   }
-
-  const canManage = isAdmin(user) || event.created_by === user.id;
 
   return (
     <EventDetailRead
